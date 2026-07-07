@@ -47,6 +47,21 @@ public class EFADbContext : DbContext
     public DbSet<AccountBalance> AccountBalances { get; set; } = null!;
     public DbSet<LedgerReport> LedgerReports { get; set; } = null!;
 
+    // Purchase DbSets
+    public DbSet<VendorType> VendorTypes { get; set; } = null!;
+    public DbSet<Vendor> Vendors { get; set; } = null!;
+    public DbSet<VendorContact> VendorContacts { get; set; } = null!;
+    public DbSet<Quotation> Quotations { get; set; } = null!;
+    public DbSet<QuotationDetail> QuotationDetails { get; set; } = null!;
+    public DbSet<PurchaseOrder> PurchaseOrders { get; set; } = null!;
+    public DbSet<PurchaseOrderDetail> PurchaseOrderDetails { get; set; } = null!;
+    public DbSet<PurchaseInvoice> PurchaseInvoices { get; set; } = null!;
+    public DbSet<PurchaseInvoiceDetail> PurchaseInvoiceDetails { get; set; } = null!;
+    public DbSet<PurchaseReturn> PurchaseReturns { get; set; } = null!;
+    public DbSet<PurchaseReturnDetail> PurchaseReturnDetails { get; set; } = null!;
+    public DbSet<PurchasePayment> PurchasePayments { get; set; } = null!;
+    public DbSet<VendorBalance> VendorBalances { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -565,6 +580,281 @@ public class EFADbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasIndex(e => e.CostCenterCode).IsUnique();
+        });
+
+        // VendorType Configuration
+        modelBuilder.Entity<VendorType>(entity =>
+        {
+            entity.HasKey(e => e.VendorTypeId);
+            entity.Property(e => e.VendorTypeCode).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.VendorTypeNameAr).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.VendorTypeNameEn).HasMaxLength(100);
+            entity.HasIndex(e => e.VendorTypeCode).IsUnique();
+        });
+
+        // Vendor Configuration
+        modelBuilder.Entity<Vendor>(entity =>
+        {
+            entity.HasKey(e => e.VendorId);
+            entity.Property(e => e.VendorCode).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.VendorNameAr).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.VendorNameEn).HasMaxLength(200);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(20);
+            entity.Property(e => e.Email).HasMaxLength(256);
+            entity.Property(e => e.CreditLimit).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.VendorType)
+                .WithMany(vt => vt.Vendors)
+                .HasForeignKey(e => e.VendorTypeId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Branch)
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Currency)
+                .WithMany()
+                .HasForeignKey(e => e.CurrencyId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.LinkedAccount)
+                .WithMany()
+                .HasForeignKey(e => e.LinkedAccountId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.VendorCode).IsUnique();
+        });
+
+        // VendorContact Configuration
+        modelBuilder.Entity<VendorContact>(entity =>
+        {
+            entity.HasKey(e => e.VendorContactId);
+            entity.Property(e => e.ContactName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Email).HasMaxLength(256);
+
+            entity.HasOne(e => e.Vendor)
+                .WithMany(v => v.VendorContacts)
+                .HasForeignKey(e => e.VendorId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Quotation Configuration
+        modelBuilder.Entity<Quotation>(entity =>
+        {
+            entity.HasKey(e => e.QuotationId);
+            entity.Property(e => e.QuotationNumber).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.SubTotal).HasPrecision(18, 4);
+            entity.Property(e => e.TaxAmount).HasPrecision(18, 4);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 4);
+            entity.Property(e => e.ExchangeRate).HasPrecision(18, 6);
+
+            entity.HasOne(e => e.Vendor)
+                .WithMany(v => v.Quotations)
+                .HasForeignKey(e => e.VendorId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Currency)
+                .WithMany()
+                .HasForeignKey(e => e.CurrencyId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.QuotationNumber).IsUnique();
+        });
+
+        // QuotationDetail Configuration
+        modelBuilder.Entity<QuotationDetail>(entity =>
+        {
+            entity.HasKey(e => e.QuotationDetailId);
+            entity.Property(e => e.Quantity).HasPrecision(18, 4);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 4);
+            entity.Property(e => e.LineTotal).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.Quotation)
+                .WithMany(q => q.QuotationDetails)
+                .HasForeignKey(e => e.QuotationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // PurchaseOrder Configuration
+        modelBuilder.Entity<PurchaseOrder>(entity =>
+        {
+            entity.HasKey(e => e.PurchaseOrderId);
+            entity.Property(e => e.PurchaseOrderNumber).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.SubTotal).HasPrecision(18, 4);
+            entity.Property(e => e.TaxAmount).HasPrecision(18, 4);
+            entity.Property(e => e.DiscountAmount).HasPrecision(18, 4);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 4);
+            entity.Property(e => e.ExchangeRate).HasPrecision(18, 6);
+            entity.Property(e => e.ReceivedQuantityPercent).HasPrecision(5, 2);
+
+            entity.HasOne(e => e.Vendor)
+                .WithMany(v => v.PurchaseOrders)
+                .HasForeignKey(e => e.VendorId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Warehouse)
+                .WithMany()
+                .HasForeignKey(e => e.WarehouseId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.PurchaseOrderNumber).IsUnique();
+        });
+
+        // PurchaseOrderDetail Configuration
+        modelBuilder.Entity<PurchaseOrderDetail>(entity =>
+        {
+            entity.HasKey(e => e.PurchaseOrderDetailId);
+            entity.Property(e => e.OrderedQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.ReceivedQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 4);
+            entity.Property(e => e.LineTotal).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.PurchaseOrder)
+                .WithMany(po => po.PurchaseOrderDetails)
+                .HasForeignKey(e => e.PurchaseOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // PurchaseInvoice Configuration
+        modelBuilder.Entity<PurchaseInvoice>(entity =>
+        {
+            entity.HasKey(e => e.PurchaseInvoiceId);
+            entity.Property(e => e.InvoiceNumber).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.VendorInvoiceNumber).HasMaxLength(100);
+            entity.Property(e => e.SubTotal).HasPrecision(18, 4);
+            entity.Property(e => e.TaxAmount).HasPrecision(18, 4);
+            entity.Property(e => e.DiscountAmount).HasPrecision(18, 4);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 4);
+            entity.Property(e => e.PaidAmount).HasPrecision(18, 4);
+            entity.Property(e => e.ExchangeRate).HasPrecision(18, 6);
+
+            entity.HasOne(e => e.Vendor)
+                .WithMany(v => v.PurchaseInvoices)
+                .HasForeignKey(e => e.VendorId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.PurchaseOrder)
+                .WithMany()
+                .HasForeignKey(e => e.PurchaseOrderId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.InvoiceNumber).IsUnique();
+        });
+
+        // PurchaseInvoiceDetail Configuration
+        modelBuilder.Entity<PurchaseInvoiceDetail>(entity =>
+        {
+            entity.HasKey(e => e.PurchaseInvoiceDetailId);
+            entity.Property(e => e.Quantity).HasPrecision(18, 4);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 4);
+            entity.Property(e => e.LineTotal).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.PurchaseInvoice)
+                .WithMany(pi => pi.PurchaseInvoiceDetails)
+                .HasForeignKey(e => e.PurchaseInvoiceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // PurchaseReturn Configuration
+        modelBuilder.Entity<PurchaseReturn>(entity =>
+        {
+            entity.HasKey(e => e.PurchaseReturnId);
+            entity.Property(e => e.ReturnNumber).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.SubTotal).HasPrecision(18, 4);
+            entity.Property(e => e.TaxAmount).HasPrecision(18, 4);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 4);
+            entity.Property(e => e.CreditNoteAmount).HasPrecision(18, 4);
+            entity.Property(e => e.ExchangeRate).HasPrecision(18, 6);
+
+            entity.HasOne(e => e.Vendor)
+                .WithMany(v => v.PurchaseReturns)
+                .HasForeignKey(e => e.VendorId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.PurchaseInvoice)
+                .WithMany()
+                .HasForeignKey(e => e.PurchaseInvoiceId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.ReturnNumber).IsUnique();
+        });
+
+        // PurchaseReturnDetail Configuration
+        modelBuilder.Entity<PurchaseReturnDetail>(entity =>
+        {
+            entity.HasKey(e => e.PurchaseReturnDetailId);
+            entity.Property(e => e.ReturnedQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 4);
+            entity.Property(e => e.LineTotal).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.PurchaseReturn)
+                .WithMany(pr => pr.PurchaseReturnDetails)
+                .HasForeignKey(e => e.PurchaseReturnId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // PurchasePayment Configuration
+        modelBuilder.Entity<PurchasePayment>(entity =>
+        {
+            entity.HasKey(e => e.PurchasePaymentId);
+            entity.Property(e => e.PaymentNumber).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.PaymentAmount).HasPrecision(18, 4);
+            entity.Property(e => e.ExchangeRate).HasPrecision(18, 6);
+            entity.Property(e => e.PaymentMethod).HasMaxLength(50);
+
+            entity.HasOne(e => e.Vendor)
+                .WithMany()
+                .HasForeignKey(e => e.VendorId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.PurchaseInvoice)
+                .WithMany(pi => pi.PurchasePayments)
+                .HasForeignKey(e => e.PurchaseInvoiceId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.PaymentNumber).IsUnique();
+        });
+
+        // VendorBalance Configuration
+        modelBuilder.Entity<VendorBalance>(entity =>
+        {
+            entity.HasKey(e => e.VendorBalanceId);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 4);
+            entity.Property(e => e.PaidAmount).HasPrecision(18, 4);
+            entity.Property(e => e.BalanceAmount).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.Vendor)
+                .WithMany(v => v.VendorBalances)
+                .HasForeignKey(e => e.VendorId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Currency)
+                .WithMany()
+                .HasForeignKey(e => e.CurrencyId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => new { e.VendorId, e.CurrencyId }).IsUnique();
         });
     }
 }
