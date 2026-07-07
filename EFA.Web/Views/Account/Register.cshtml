@@ -1,0 +1,161 @@
+@model EFA.Application.DTOs.CreateUserDto
+
+@{
+    ViewData["Title"] = "إنشاء حساب جديد";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - نظام إدارة المحاسبة</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px 0;
+        }
+
+        .register-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .register-header h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .register-header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            padding: 12px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-register {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h1>نظام إدارة المحاسبة</h1>
+            <p>إنشاء حساب جديد</p>
+        </div>
+
+        @if (ViewData.ModelState.Values.SelectMany(v => v.Errors).Any())
+        {
+            <div class="alert alert-danger" role="alert">
+                <h4 class="alert-heading">خطأ!</h4>
+                <ul class="mb-0">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <form method="post">
+            <div class="form-group">
+                <label for="username" class="form-label">اسم المستخدم</label>
+                <input type="text" class="form-control" id="username" name="username" placeholder="اختر اسم مستخدم" asp-for="Username" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fullname" class="form-label">الاسم الكامل</label>
+                <input type="text" class="form-control" id="fullname" name="fullname" placeholder="أدخل الاسم الكامل" asp-for="FullName">
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">البريد الإلكتروني</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="أدخل البريد الإلكتروني" asp-for="Email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone" class="form-label">رقم الهاتف</label>
+                <input type="tel" class="form-control" id="phone" name="phone" placeholder="أدخل رقم الهاتف" asp-for="PhoneNumber">
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">كلمة المرور</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="أدخل كلمة المرور" asp-for="Password" required>
+            </div>
+
+            <button type="submit" class="btn-register">إنشاء الحساب</button>
+        </form>
+
+        <div class="login-link">
+            هل لديك حساب بالفعل؟ <a asp-action="Login">دخول</a>
+        </div>
+    </div>
+</body>
+</html>

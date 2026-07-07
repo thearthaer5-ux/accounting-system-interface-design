@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - نظام إدارة المحاسبة المتكامل</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.rtl.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            background-color: #2c3e50;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .sidebar {
+            background-color: #34495e;
+            color: white;
+            padding: 20px 0;
+            min-height: calc(100vh - 56px);
+        }
+
+        .sidebar a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 12px 20px;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #2980b9;
+            padding-right: 30px;
+        }
+
+        .main-content {
+            padding: 20px;
+        }
+
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,.1);
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            border-color: #3498db;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+
+        .alert {
+            border-radius: 8px;
+        }
+
+        .footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-calculator"></i> نظام إدارة المحاسبة
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                            @User.Identity?.Name
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">الملف الشخصي</a></li>
+                            <li><a class="dropdown-item" asp-controller="Account" asp-action="ChangePassword">تغيير كلمة المرور</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" asp-controller="Account" asp-action="Logout" style="display:inline;">
+                                    <button type="submit" class="dropdown-item" style="border: none; background: none; text-align: right;">تسجيل الخروج</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-2 sidebar">
+                <div class="p-3">
+                    <h5 class="text-light">القائمة الرئيسية</h5>
+                    <hr class="bg-light">
+                </div>
+                <a asp-controller="Home" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                    <i class="bi bi-house"></i> الرئيسية
+                </a>
+                <a asp-controller="UserManagement" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "UserManagement" ? "active" : "")">
+                    <i class="bi bi-people"></i> إدارة المستخدمين
+                </a>
+                <a href="#" class="disabled">
+                    <i class="bi bi-shield-check"></i> إدارة الصلاحيات
+                </a>
+                <a href="#" class="disabled">
+                    <i class="bi bi-diagram-3"></i> إدارة المجموعات
+                </a>
+                <a href="#" class="disabled">
+                    <i class="bi bi-building"></i> إدارة الفروع
+                </a>
+                <a href="#" class="disabled">
+                    <i class="bi bi-cash-coin"></i> إدارة العملات
+                </a>
+                <a href="#" class="disabled">
+                    <i class="bi bi-search"></i> التدقيق
+                </a>
+            </div>
+
+            <div class="col-md-10 main-content">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2024 نظام إدارة المحاسبة المتكامل - جميع الحقوق محفوظة</p>
+    </footer>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

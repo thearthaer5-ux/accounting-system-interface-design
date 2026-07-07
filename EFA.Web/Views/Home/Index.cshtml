@@ -1,0 +1,80 @@
+@{
+    ViewData["Title"] = "الصفحة الرئيسية";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="mb-4">لوحة التحكم</h1>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h5 class="card-title">المستخدمون النشطون</h5>
+                <h2>---</h2>
+                <p class="card-text">عدد المستخدمين الفعالين في النظام</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5 class="card-title">المجموعات</h5>
+                <h2>---</h2>
+                <p class="card-text">إجمالي مجموعات الصلاحيات</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h5 class="card-title">الفروع</h5>
+                <h2>---</h2>
+                <p class="card-text">عدد فروع الشركة</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h5 class="card-title">العملات</h5>
+                <h2>---</h2>
+                <p class="card-text">أنواع العملات المستخدمة</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">آخر الأنشطة</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">لا توجد أنشطة حتى الآن</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: transform 0.3s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,.2);
+    }
+
+    .card h2 {
+        font-size: 2.5rem;
+        font-weight: bold;
+    }
+</style>
