@@ -25,11 +25,27 @@ builder.Services.AddScoped<IBranchRepository, BranchRepository>();
 builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
 builder.Services.AddScoped<IAuditRepository, AuditRepository>();
 
+// Inventory Repositories
+builder.Services.AddScoped<IItemCategoryRepository, ItemCategoryRepository>();
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+builder.Services.AddScoped<IItemBalanceRepository, ItemBalanceRepository>();
+builder.Services.AddScoped<IItemMovementRepository, ItemMovementRepository>();
+builder.Services.AddScoped<IItemBatchRepository, ItemBatchRepository>();
+builder.Services.AddScoped<IInventoryCountRepository, InventoryCountRepository>();
+
 // Register Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IBranchService, BranchService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+
+// Inventory Services
+builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+builder.Services.AddScoped<IInventoryService, InventoryService>();
+builder.Services.AddScoped<IInventoryCountService, InventoryCountService>();
+builder.Services.AddScoped<IItemBatchService, ItemBatchService>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));

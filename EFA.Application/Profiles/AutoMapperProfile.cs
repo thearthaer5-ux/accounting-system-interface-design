@@ -44,5 +44,50 @@ public class AutoMapperProfile : Profile
         // Audit mappings
         CreateMap<Audit, AuditDto>()
             .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.User!.Username));
+
+        // Item Category mappings
+        CreateMap<ItemCategory, ItemCategoryDto>();
+        CreateMap<ItemCategoryCreateDto, ItemCategory>();
+
+        // Item mappings
+        CreateMap<Item, ItemDto>()
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.ItemCategory!.ItemCategoryNameAr));
+        CreateMap<ItemCreateUpdateDto, Item>();
+
+        // Warehouse mappings
+        CreateMap<Warehouse, WarehouseDto>()
+            .ForMember(dest => dest.BranchName, opt => opt.MapFrom(src => src.Branch!.BranchName));
+        CreateMap<WarehouseCreateUpdateDto, Warehouse>();
+
+        // Item Balance mappings
+        CreateMap<ItemBalance, ItemBalanceDto>()
+            .ForMember(dest => dest.ItemCode, opt => opt.MapFrom(src => src.Item!.ItemCode))
+            .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.Item!.ItemNameAr))
+            .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse!.WarehouseNameAr))
+            .ForMember(dest => dest.TotalValue, opt => opt.MapFrom(src => src.BalanceQuantity * src.AverageCost));
+
+        // Item Movement mappings
+        CreateMap<ItemMovement, ItemMovementDto>()
+            .ForMember(dest => dest.ItemCode, opt => opt.MapFrom(src => src.Item!.ItemCode))
+            .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.Item!.ItemNameAr))
+            .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse!.WarehouseNameAr))
+            .ForMember(dest => dest.WarehouseToName, opt => opt.MapFrom(src => src.WarehouseTo!.WarehouseNameAr));
+        CreateMap<ItemMovementCreateDto, ItemMovement>();
+
+        // Item Batch mappings
+        CreateMap<ItemBatch, ItemBatchDto>()
+            .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.Item!.ItemNameAr));
+        CreateMap<ItemBatchCreateDto, ItemBatch>();
+
+        // Inventory Count mappings
+        CreateMap<InventoryCount, InventoryCountDto>()
+            .ForMember(dest => dest.WarehouseName, opt => opt.MapFrom(src => src.Warehouse!.WarehouseNameAr));
+        CreateMap<InventoryCountCreateDto, InventoryCount>();
+
+        // Inventory Count Detail mappings
+        CreateMap<InventoryCountDetail, InventoryCountDetailDto>()
+            .ForMember(dest => dest.ItemCode, opt => opt.MapFrom(src => src.Item!.ItemCode))
+            .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.Item!.ItemNameAr));
+        CreateMap<InventoryCountDetailDto, InventoryCountDetail>();
     }
 }

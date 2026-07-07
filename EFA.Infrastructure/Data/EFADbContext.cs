@@ -26,6 +26,17 @@ public class EFADbContext : DbContext
     public DbSet<CostCenter> CostCenters { get; set; } = null!;
     public DbSet<SystemParameter> SystemParameters { get; set; } = null!;
 
+    // Inventory DbSets
+    public DbSet<ItemCategory> ItemCategories { get; set; } = null!;
+    public DbSet<Item> Items { get; set; } = null!;
+    public DbSet<ItemUnit> ItemUnits { get; set; } = null!;
+    public DbSet<Warehouse> Warehouses { get; set; } = null!;
+    public DbSet<ItemBalance> ItemBalances { get; set; } = null!;
+    public DbSet<ItemMovement> ItemMovements { get; set; } = null!;
+    public DbSet<ItemBatch> ItemBatches { get; set; } = null!;
+    public DbSet<InventoryCount> InventoryCounts { get; set; } = null!;
+    public DbSet<InventoryCountDetail> InventoryCountDetails { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -204,6 +215,165 @@ public class EFADbContext : DbContext
             entity.Property(e => e.DataType).HasMaxLength(50);
 
             entity.HasIndex(e => e.ParameterName).IsUnique();
+        });
+
+        // ItemCategory Configuration
+        modelBuilder.Entity<ItemCategory>(entity =>
+        {
+            entity.HasKey(e => e.ItemCategoryId);
+            entity.Property(e => e.ItemCategoryNameAr).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.ItemCategoryNameEn).HasMaxLength(100);
+            entity.Property(e => e.ItemCategoryDescription).HasMaxLength(500);
+        });
+
+        // Item Configuration
+        modelBuilder.Entity<Item>(entity =>
+        {
+            entity.HasKey(e => e.ItemId);
+            entity.Property(e => e.ItemCode).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.ItemNameAr).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.ItemNameEn).HasMaxLength(200);
+            entity.Property(e => e.ItemCost).HasPrecision(18, 4);
+            entity.Property(e => e.ItemPrice).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.ItemCategory)
+                .WithMany(c => c.Items)
+                .HasForeignKey(e => e.ItemCategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.ItemCode).IsUnique();
+        });
+
+        // ItemUnit Configuration
+        modelBuilder.Entity<ItemUnit>(entity =>
+        {
+            entity.HasKey(e => e.ItemUnitId);
+            entity.Property(e => e.UnitNameAr).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.UnitNameEn).HasMaxLength(50);
+            entity.Property(e => e.UnitFactor).HasPrecision(18, 4);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.Item)
+                .WithMany(i => i.ItemUnits)
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Warehouse Configuration
+        modelBuilder.Entity<Warehouse>(entity =>
+        {
+            entity.HasKey(e => e.WarehouseId);
+            entity.Property(e => e.WarehouseNameAr).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.WarehouseNameEn).HasMaxLength(100);
+            entity.Property(e => e.WarehouseCapacity).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.Branch)
+                .WithMany(b => b.Warehouses)
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // ItemBalance Configuration
+        modelBuilder.Entity<ItemBalance>(entity =>
+        {
+            entity.HasKey(e => e.ItemBalanceId);
+            entity.Property(e => e.BalanceQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.AverageCost).HasPrecision(18, 6);
+
+            entity.HasOne(e => e.Item)
+                .WithMany(i => i.ItemBalances)
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Warehouse)
+                .WithMany(w => w.ItemBalances)
+                .HasForeignKey(e => e.WarehouseId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.ItemId, e.WarehouseId }).IsUnique();
+        });
+
+        // ItemMovement Configuration
+        modelBuilder.Entity<ItemMovement>(entity =>
+        {
+            entity.HasKey(e => e.ItemMovementId);
+            entity.Property(e => e.MovementQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.MovementCost).HasPrecision(18, 6);
+            entity.Property(e => e.ReferenceDocumentType).HasMaxLength(100);
+            entity.Property(e => e.Notes).HasMaxLength(200);
+
+            entity.HasOne(e => e.Item)
+                .WithMany(i => i.ItemMovements)
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Warehouse)
+                .WithMany(w => w.ItemMovements)
+                .HasForeignKey(e => e.WarehouseId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.WarehouseTo)
+                .WithMany()
+                .HasForeignKey(e => e.WarehouseIdTo)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => new { e.ItemId, e.WarehouseId, e.MovementDate });
+        });
+
+        // ItemBatch Configuration
+        modelBuilder.Entity<ItemBatch>(entity =>
+        {
+            entity.HasKey(e => e.ItemBatchId);
+            entity.Property(e => e.BatchNumber).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.BatchQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.BatchCost).HasPrecision(18, 6);
+
+            entity.HasOne(e => e.Item)
+                .WithMany(i => i.ItemBatches)
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Warehouse)
+                .WithMany()
+                .HasForeignKey(e => e.WarehouseId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => new { e.ItemId, e.BatchNumber }).IsUnique();
+        });
+
+        // InventoryCount Configuration
+        modelBuilder.Entity<InventoryCount>(entity =>
+        {
+            entity.HasKey(e => e.InventoryCountId);
+            entity.Property(e => e.CountNumber).IsRequired().HasMaxLength(100);
+
+            entity.HasOne(e => e.Warehouse)
+                .WithMany()
+                .HasForeignKey(e => e.WarehouseId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.CountNumber).IsUnique();
+        });
+
+        // InventoryCountDetail Configuration
+        modelBuilder.Entity<InventoryCountDetail>(entity =>
+        {
+            entity.HasKey(e => e.InventoryCountDetailId);
+            entity.Property(e => e.SystemQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.PhysicalQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.Difference).HasPrecision(18, 4);
+            entity.Property(e => e.UnitCost).HasPrecision(18, 6);
+            entity.Property(e => e.DifferenceCost).HasPrecision(18, 6);
+
+            entity.HasOne(e => e.InventoryCount)
+                .WithMany(ic => ic.InventoryCountDetails)
+                .HasForeignKey(e => e.InventoryCountId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
     }
 }

@@ -1,0 +1,164 @@
+@model List<ItemMovementDto>
+
+@{
+    ViewData["Title"] = "حركات المخزون";
+    var fromDate = ViewData["FromDate"]?.ToString() ?? DateTime.Now.AddMonths(-1).ToString("yyyy-MM-dd");
+    var toDate = ViewData["ToDate"]?.ToString() ?? DateTime.Now.ToString("yyyy-MM-dd");
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="page-title">حركات المخزون</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="@Url.Action("AddMovement")" class="btn btn-success">
+                <i class="fas fa-plus"></i> حركة جديدة
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <label class="form-label">من التاريخ:</label>
+                    <input type="date" id="fromDate" class="form-control" value="@fromDate">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">إلى التاريخ:</label>
+                    <input type="date" id="toDate" class="form-control" value="@toDate">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button class="btn btn-primary w-100" onclick="filterMovements()">
+                        <i class="fas fa-filter"></i> تصفية
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>الصنف</th>
+                                <th>من المستودع</th>
+                                <th>إلى المستودع</th>
+                                <th>نوع الحركة</th>
+                                <th>الكمية</th>
+                                <th>التكلفة</th>
+                                <th>التاريخ</th>
+                                <th>الحالة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var movement in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-info">@movement.ItemCode</span><br/>
+                                        <small>@movement.ItemName</small>
+                                    </td>
+                                    <td>@movement.WarehouseName</td>
+                                    <td>@(movement.WarehouseToName ?? "—")</td>
+                                    <td>
+                                        @switch (movement.MovementType)
+                                        {
+                                            case 1:
+                                                <span class="badge bg-success">دخول</span>
+                                                break;
+                                            case 2:
+                                                <span class="badge bg-danger">خروج</span>
+                                                break;
+                                            case 3:
+                                                <span class="badge bg-warning">تحويل</span>
+                                                break;
+                                            case 4:
+                                                <span class="badge bg-info">جرد</span>
+                                                break;
+                                            case 5:
+                                                <span class="badge bg-secondary">مرتجع</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td class="text-end">@movement.MovementQuantity.ToString("N2")</td>
+                                    <td class="text-end">@movement.MovementCost.ToString("N6")</td>
+                                    <td>@movement.MovementDate.ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>
+                                        @if (movement.IsPosted)
+                                        {
+                                            <span class="badge bg-success">مرحل</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning">قيد الانتظار</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!movement.IsPosted)
+                                        {
+                                            <button class="btn btn-sm btn-success" onclick="postMovement(@movement.ItemMovementId)">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i> لا توجد حركات في الفترة المحددة
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+<script>
+    function filterMovements() {
+        const fromDate = document.getElementById('fromDate').value;
+        const toDate = document.getElementById('toDate').value;
+        window.location = '@Url.Action("Movements")' + '?fromDate=' + fromDate + '&toDate=' + toDate;
+    }
+
+    function postMovement(movementId) {
+        if (confirm('هل تريد ترحيل هذه الحركة؟')) {
+            fetch('@Url.Action("PostMovement", "Inventory")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ movementId: movementId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('تم ترحيل الحركة بنجاح');
+                    location.reload();
+                } else {
+                    alert('فشل ترحيل الحركة');
+                }
+            });
+        }
+    }
+</script>

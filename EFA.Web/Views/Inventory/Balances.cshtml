@@ -1,0 +1,119 @@
+@model List<ItemBalanceDto>
+
+@{
+    ViewData["Title"] = "أرصدة المخزون";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1 class="page-title">أرصدة المخزون</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="@Url.Action("AddMovement")" class="btn btn-success">
+                <i class="fas fa-arrow-right"></i> حركة جديدة
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h6 class="card-title">إجمالي الأصناف</h6>
+                    <h2>@Model.Count</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h6 class="card-title">إجمالي الكمية</h6>
+                    <h2>@Model.Sum(b => b.BalanceQuantity)</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h6 class="card-title">إجمالي القيمة</h6>
+                    <h2>@Model.Sum(b => b.TotalValue).ToString("N2")</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">تفاصيل الأرصدة</h5>
+        </div>
+        <div class="card-body">
+            @if (Model.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>كود الصنف</th>
+                                <th>اسم الصنف</th>
+                                <th>المستودع</th>
+                                <th>الكمية</th>
+                                <th>متوسط التكلفة</th>
+                                <th>القيمة الإجمالية</th>
+                                <th>آخر حركة</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var balance in Model)
+                            {
+                                <tr>
+                                    <td><span class="badge bg-info">@balance.ItemCode</span></td>
+                                    <td>@balance.ItemName</td>
+                                    <td>@balance.WarehouseName</td>
+                                    <td class="text-end">@balance.BalanceQuantity.ToString("N2")</td>
+                                    <td class="text-end">@balance.AverageCost.ToString("N6")</td>
+                                    <td class="text-end">@balance.TotalValue.ToString("N2")</td>
+                                    <td>@balance.LastMovementDate.ToString("yyyy-MM-dd")</td>
+                                    <td>
+                                        <a href="@Url.Action("ItemBalances", new { itemId = balance.ItemId })" class="btn btn-sm btn-info" title="التفاصيل">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i> لا توجد أرصدة متاحة
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2c3e50;
+    }
+
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+        border: none;
+    }
+
+    .card-body h2 {
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
