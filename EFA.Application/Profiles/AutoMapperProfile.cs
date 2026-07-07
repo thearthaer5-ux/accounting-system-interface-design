@@ -89,5 +89,45 @@ public class AutoMapperProfile : Profile
             .ForMember(dest => dest.ItemCode, opt => opt.MapFrom(src => src.Item!.ItemCode))
             .ForMember(dest => dest.ItemName, opt => opt.MapFrom(src => src.Item!.ItemNameAr));
         CreateMap<InventoryCountDetailDto, InventoryCountDetail>();
+
+        // Chart of Account mappings
+        CreateMap<ChartOfAccount, ChartOfAccountDto>();
+        CreateMap<ChartOfAccountCreateUpdateDto, ChartOfAccount>();
+
+        // Journal mappings
+        CreateMap<Journal, JournalDto>()
+            .ForMember(dest => dest.JournalTypeName, opt => opt.MapFrom(src => src.JournalType!.JournalTypeNameAr));
+        CreateMap<JournalCreateUpdateDto, Journal>();
+
+        // Journal Entry mappings
+        CreateMap<JournalEntry, JournalEntryDto>()
+            .ForMember(dest => dest.AccountNumber, opt => opt.MapFrom(src => src.Account!.AccountNumber))
+            .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.Account!.AccountNameAr))
+            .ForMember(dest => dest.CostCenterName, opt => opt.MapFrom(src => src.CostCenter!.CostCenterNameAr));
+        CreateMap<JournalEntryCreateDto, JournalEntry>();
+
+        // Fiscal Period mappings
+        CreateMap<FiscalPeriod, FiscalPeriodDto>();
+        CreateMap<FiscalPeriodCreateUpdateDto, FiscalPeriod>();
+
+        // Opening Balance mappings
+        CreateMap<OpeningBalance, OpeningBalanceDto>()
+            .ForMember(dest => dest.AccountNumber, opt => opt.MapFrom(src => src.Account!.AccountNumber))
+            .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.Account!.AccountNameAr));
+        CreateMap<OpeningBalanceCreateUpdateDto, OpeningBalance>();
+
+        // Account Balance mappings
+        CreateMap<AccountBalance, AccountBalanceDto>()
+            .ForMember(dest => dest.AccountNumber, opt => opt.MapFrom(src => src.Account!.AccountNumber))
+            .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.Account!.AccountNameAr));
+
+        // Ledger Report mappings
+        CreateMap<LedgerReport, LedgerReportDto>()
+            .ForMember(dest => dest.AccountNumber, opt => opt.MapFrom(src => src.Account!.AccountNumber))
+            .ForMember(dest => dest.AccountName, opt => opt.MapFrom(src => src.Account!.AccountNameAr));
+
+        // Cost Center mappings
+        CreateMap<CostCenter, CostCenterDto>();
+        CreateMap<CostCenterCreateUpdateDto, CostCenter>();
     }
 }

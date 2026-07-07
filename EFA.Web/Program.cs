@@ -34,6 +34,16 @@ builder.Services.AddScoped<IItemMovementRepository, ItemMovementRepository>();
 builder.Services.AddScoped<IItemBatchRepository, ItemBatchRepository>();
 builder.Services.AddScoped<IInventoryCountRepository, InventoryCountRepository>();
 
+// Accounting Repositories
+builder.Services.AddScoped<IChartOfAccountRepository, ChartOfAccountRepository>();
+builder.Services.AddScoped<IJournalTypeRepository, JournalTypeRepository>();
+builder.Services.AddScoped<IJournalRepository, JournalRepository>();
+builder.Services.AddScoped<IJournalEntryRepository, JournalEntryRepository>();
+builder.Services.AddScoped<IOpeningBalanceRepository, OpeningBalanceRepository>();
+builder.Services.AddScoped<IFiscalPeriodRepository, FiscalPeriodRepository>();
+builder.Services.AddScoped<IAccountBalanceRepository, AccountBalanceRepository>();
+builder.Services.AddScoped<ILedgerReportRepository, LedgerReportRepository>();
+
 // Register Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
@@ -46,6 +56,13 @@ builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IInventoryCountService, InventoryCountService>();
 builder.Services.AddScoped<IItemBatchService, ItemBatchService>();
+
+// Accounting Services
+builder.Services.AddScoped<IChartOfAccountService, ChartOfAccountService>();
+builder.Services.AddScoped<IJournalService, JournalService>();
+builder.Services.AddScoped<IFiscalPeriodService, FiscalPeriodService>();
+builder.Services.AddScoped<IAccountBalanceService, AccountBalanceService>();
+builder.Services.AddScoped<IOpeningBalanceService, OpeningBalanceService>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));

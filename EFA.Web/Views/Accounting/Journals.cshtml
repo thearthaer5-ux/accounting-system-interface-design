@@ -1,0 +1,151 @@
+@model IEnumerable<JournalDto>
+
+@{
+    ViewData["Title"] = "اليوميات المحاسبية";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3 d-flex align-items-center">
+                <i class="fas fa-book text-primary me-2"></i>
+                @ViewData["Title"]
+            </h1>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("CreateJournal")" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>يومية جديدة
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-light">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" id="searchBox" class="form-control" placeholder="ابحث برقم اليومية...">
+                </div>
+                <div class="col-md-6">
+                    <select id="statusFilter" class="form-select">
+                        <option value="">جميع الحالات</option>
+                        <option value="Draft">مسودة</option>
+                        <option value="Posted">مرحل</option>
+                        <option value="Reversed">معكوس</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>رقم اليومية</th>
+                            <th>النوع</th>
+                            <th>التاريخ</th>
+                            <th>الحالة</th>
+                            <th>إجمالي المدين</th>
+                            <th>إجمالي الدائن</th>
+                            <th>عدد القيود</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var journal in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <strong>@journal.JournalNumber</strong>
+                                </td>
+                                <td>@journal.JournalTypeName</td>
+                                <td>@journal.JournalDate.ToString("yyyy-MM-dd")</td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(journal.JournalStatus)">
+                                        @GetStatusDisplay(journal.JournalStatus)
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="text-success">@journal.TotalDebit.ToString("N2")</span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="text-danger">@journal.TotalCredit.ToString("N2")</span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark">@journal.EntryCount</span>
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("JournalDetails", new { id = journal.JournalId })" class="btn btn-sm btn-info" title="عرض">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    @if (journal.JournalStatus == "Draft")
+                                    {
+                                        <button type="button" class="btn btn-sm btn-success" onclick="postJournal(@journal.JournalId)" title="ترحيل">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function postJournal(journalId) {
+            if (confirm('هل تريد فعلاً ترحيل هذه اليومية؟')) {
+                $.post('@Url.Action("PostJournal")', { id: journalId }, function(data) {
+                    location.reload();
+                });
+            }
+        }
+
+        $(document).ready(function() {
+            $('#searchBox').on('keyup', function() {
+                var searchValue = $(this).val().toLowerCase();
+                $('table tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(searchValue) > -1)
+                });
+            });
+
+            $('#statusFilter').on('change', function() {
+                var statusValue = $(this).val();
+                if (statusValue === '') {
+                    $('table tbody tr').show();
+                } else {
+                    $('table tbody tr').filter(function() {
+                        $(this).toggle($(this).find('td:eq(3)').text().includes(statusValue))
+                    });
+                }
+            });
+        });
+    </script>
+}
+
+@functions {
+    private string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Draft" => "bg-warning",
+            "Posted" => "bg-success",
+            "Reversed" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusDisplay(string status)
+    {
+        return status switch
+        {
+            "Draft" => "مسودة",
+            "Posted" => "مرحل",
+            "Reversed" => "معكوس",
+            _ => status
+        };
+    }
+}
