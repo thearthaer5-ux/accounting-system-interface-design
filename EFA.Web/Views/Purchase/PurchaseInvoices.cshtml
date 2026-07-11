@@ -1,0 +1,116 @@
+@model List<EFA.Application.DTOs.PurchaseInvoiceDto>
+
+@{
+    ViewData["Title"] = "فواتير الشراء";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>فواتير الشراء</h2>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (Model?.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>رقم الفاتورة</th>
+                                <th>الموردين</th>
+                                <th>تاريخ الفاتورة</th>
+                                <th>الحالة</th>
+                                <th>المبلغ الكلي</th>
+                                <th>المبلغ المدفوع</th>
+                                <th>المتبقي</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var invoice in Model)
+                            {
+                                <tr>
+                                    <td><strong>@invoice.InvoiceNumber</strong></td>
+                                    <td>@invoice.VendorName</td>
+                                    <td>@invoice.InvoiceDate.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <span class="badge bg-info">@invoice.Status</span>
+                                    </td>
+                                    <td>@invoice.TotalAmount.ToString("N2")</td>
+                                    <td>
+                                        <span class="badge bg-success">@invoice.PaidAmount.ToString("N2")</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger">@invoice.RemainingAmount.ToString("N2")</span>
+                                    </td>
+                                    <td>
+                                        <a href="@Url.Action("InvoiceDetails", new { id = invoice.PurchaseInvoiceId })" 
+                                           class="btn btn-sm btn-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        @if (invoice.RemainingAmount > 0)
+                                        {
+                                            <button class="btn btn-sm btn-success" data-bs-toggle="modal" 
+                                                    data-bs-target="#paymentModal" 
+                                                    onclick="setInvoiceId(@invoice.PurchaseInvoiceId)">
+                                                <i class="fas fa-money-bill"></i>
+                                            </button>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    لا توجد فواتير شراء
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">تسجيل دفعة</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="">
+                <div class="modal-body">
+                    <input type="hidden" id="invoiceId" name="id" />
+                    <div class="mb-3">
+                        <label class="form-label">المبلغ</label>
+                        <input type="number" name="amount" step="0.01" class="form-control" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="submit" class="btn btn-primary">تسجيل الدفعة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function setInvoiceId(id) {
+    document.getElementById('invoiceId').value = id;
+}
+</script>

@@ -62,6 +62,20 @@ public class EFADbContext : DbContext
     public DbSet<PurchasePayment> PurchasePayments { get; set; } = null!;
     public DbSet<VendorBalance> VendorBalances { get; set; } = null!;
 
+    // Sales DbSets
+    public DbSet<CustomerType> CustomerTypes { get; set; } = null!;
+    public DbSet<Customer> Customers { get; set; } = null!;
+    public DbSet<CustomerContact> CustomerContacts { get; set; } = null!;
+    public DbSet<SalesOrder> SalesOrders { get; set; } = null!;
+    public DbSet<SalesOrderDetail> SalesOrderDetails { get; set; } = null!;
+    public DbSet<SalesInvoice> SalesInvoices { get; set; } = null!;
+    public DbSet<SalesInvoiceDetail> SalesInvoiceDetails { get; set; } = null!;
+    public DbSet<SalesReturn> SalesReturns { get; set; } = null!;
+    public DbSet<SalesReturnDetail> SalesReturnDetails { get; set; } = null!;
+    public DbSet<SalesPayment> SalesPayments { get; set; } = null!;
+    public DbSet<Salesman> Salesmen { get; set; } = null!;
+    public DbSet<CustomerBalance> CustomerBalances { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -855,6 +869,266 @@ public class EFADbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull);
 
             entity.HasIndex(e => new { e.VendorId, e.CurrencyId }).IsUnique();
+        });
+
+        // CustomerType Configuration
+        modelBuilder.Entity<CustomerType>(entity =>
+        {
+            entity.HasKey(e => e.CustomerTypeId);
+            entity.Property(e => e.CustomerTypeCode).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.CustomerTypeNameAr).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.CustomerTypeNameEn).HasMaxLength(100);
+            entity.HasIndex(e => e.CustomerTypeCode).IsUnique();
+        });
+
+        // Customer Configuration
+        modelBuilder.Entity<Customer>(entity =>
+        {
+            entity.HasKey(e => e.CustomerId);
+            entity.Property(e => e.CustomerCode).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.CustomerNameAr).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.CustomerNameEn).HasMaxLength(200);
+            entity.Property(e => e.PhoneNumber).HasMaxLength(20);
+            entity.Property(e => e.Email).HasMaxLength(256);
+            entity.Property(e => e.CreditLimit).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.CustomerType)
+                .WithMany(ct => ct.Customers)
+                .HasForeignKey(e => e.CustomerTypeId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Branch)
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Currency)
+                .WithMany()
+                .HasForeignKey(e => e.CurrencyId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.LinkedAccount)
+                .WithMany()
+                .HasForeignKey(e => e.LinkedAccountId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.CustomerCode).IsUnique();
+        });
+
+        // CustomerContact Configuration
+        modelBuilder.Entity<CustomerContact>(entity =>
+        {
+            entity.HasKey(e => e.CustomerContactId);
+            entity.Property(e => e.ContactName).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Email).HasMaxLength(256);
+
+            entity.HasOne(e => e.Customer)
+                .WithMany(c => c.CustomerContacts)
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // SalesOrder Configuration
+        modelBuilder.Entity<SalesOrder>(entity =>
+        {
+            entity.HasKey(e => e.SalesOrderId);
+            entity.Property(e => e.SalesOrderNumber).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.SubTotal).HasPrecision(18, 4);
+            entity.Property(e => e.TaxAmount).HasPrecision(18, 4);
+            entity.Property(e => e.DiscountAmount).HasPrecision(18, 4);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.Customer)
+                .WithMany(c => c.SalesOrders)
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Salesman)
+                .WithMany(s => s.SalesOrders)
+                .HasForeignKey(e => e.SalesmanId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Warehouse)
+                .WithMany()
+                .HasForeignKey(e => e.WarehouseId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.SalesOrderNumber).IsUnique();
+        });
+
+        // SalesOrderDetail Configuration
+        modelBuilder.Entity<SalesOrderDetail>(entity =>
+        {
+            entity.HasKey(e => e.SalesOrderDetailId);
+            entity.Property(e => e.OrderedQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.DeliveredQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 4);
+            entity.Property(e => e.LineTotal).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.SalesOrder)
+                .WithMany(so => so.SalesOrderDetails)
+                .HasForeignKey(e => e.SalesOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // SalesInvoice Configuration
+        modelBuilder.Entity<SalesInvoice>(entity =>
+        {
+            entity.HasKey(e => e.SalesInvoiceId);
+            entity.Property(e => e.InvoiceNumber).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.SubTotal).HasPrecision(18, 4);
+            entity.Property(e => e.TaxAmount).HasPrecision(18, 4);
+            entity.Property(e => e.DiscountAmount).HasPrecision(18, 4);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 4);
+            entity.Property(e => e.PaidAmount).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.Customer)
+                .WithMany(c => c.SalesInvoices)
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.SalesOrder)
+                .WithMany(so => so.SalesInvoices)
+                .HasForeignKey(e => e.SalesOrderId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Salesman)
+                .WithMany(s => s.SalesInvoices)
+                .HasForeignKey(e => e.SalesmanId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.InvoiceNumber).IsUnique();
+        });
+
+        // SalesInvoiceDetail Configuration
+        modelBuilder.Entity<SalesInvoiceDetail>(entity =>
+        {
+            entity.HasKey(e => e.SalesInvoiceDetailId);
+            entity.Property(e => e.Quantity).HasPrecision(18, 4);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 4);
+            entity.Property(e => e.LineTotal).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.SalesInvoice)
+                .WithMany(si => si.SalesInvoiceDetails)
+                .HasForeignKey(e => e.SalesInvoiceId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // SalesReturn Configuration
+        modelBuilder.Entity<SalesReturn>(entity =>
+        {
+            entity.HasKey(e => e.SalesReturnId);
+            entity.Property(e => e.ReturnNumber).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.SubTotal).HasPrecision(18, 4);
+            entity.Property(e => e.TaxAmount).HasPrecision(18, 4);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 4);
+            entity.Property(e => e.CreditNoteAmount).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.Customer)
+                .WithMany(c => c.SalesReturns)
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.SalesInvoice)
+                .WithMany(si => si.SalesReturns)
+                .HasForeignKey(e => e.SalesInvoiceId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.ReturnNumber).IsUnique();
+        });
+
+        // SalesReturnDetail Configuration
+        modelBuilder.Entity<SalesReturnDetail>(entity =>
+        {
+            entity.HasKey(e => e.SalesReturnDetailId);
+            entity.Property(e => e.ReturnedQuantity).HasPrecision(18, 4);
+            entity.Property(e => e.UnitPrice).HasPrecision(18, 4);
+            entity.Property(e => e.LineTotal).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.SalesReturn)
+                .WithMany(sr => sr.SalesReturnDetails)
+                .HasForeignKey(e => e.SalesReturnId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        // SalesPayment Configuration
+        modelBuilder.Entity<SalesPayment>(entity =>
+        {
+            entity.HasKey(e => e.SalesPaymentId);
+            entity.Property(e => e.PaymentNumber).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.PaymentAmount).HasPrecision(18, 4);
+            entity.Property(e => e.PaymentMethod).HasMaxLength(50);
+
+            entity.HasOne(e => e.Customer)
+                .WithMany(c => c.SalesPayments)
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.SalesInvoice)
+                .WithMany(si => si.SalesPayments)
+                .HasForeignKey(e => e.SalesInvoiceId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.PaymentNumber).IsUnique();
+        });
+
+        // Salesman Configuration
+        modelBuilder.Entity<Salesman>(entity =>
+        {
+            entity.HasKey(e => e.SalesmanId);
+            entity.Property(e => e.SalesmanCode).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.SalesmanNameAr).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.SalesmanNameEn).HasMaxLength(100);
+            entity.Property(e => e.CommissionRate).HasPrecision(5, 2);
+            entity.Property(e => e.MonthlyTarget).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.Branch)
+                .WithMany()
+                .HasForeignKey(e => e.BranchId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.User)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => e.SalesmanCode).IsUnique();
+        });
+
+        // CustomerBalance Configuration
+        modelBuilder.Entity<CustomerBalance>(entity =>
+        {
+            entity.HasKey(e => e.CustomerBalanceId);
+            entity.Property(e => e.TotalAmount).HasPrecision(18, 4);
+            entity.Property(e => e.PaidAmount).HasPrecision(18, 4);
+            entity.Property(e => e.BalanceAmount).HasPrecision(18, 4);
+
+            entity.HasOne(e => e.Customer)
+                .WithMany(c => c.CustomerBalances)
+                .HasForeignKey(e => e.CustomerId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.Currency)
+                .WithMany()
+                .HasForeignKey(e => e.CurrencyId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(e => new { e.CustomerId, e.CurrencyId }).IsUnique();
         });
     }
 }

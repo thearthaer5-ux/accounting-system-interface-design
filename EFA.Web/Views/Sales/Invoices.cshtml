@@ -1,0 +1,56 @@
+@model List<EFA.Application.DTOs.SalesInvoiceDto>
+
+@{
+    ViewData["Title"] = "فواتير المبيعات";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>فواتير المبيعات</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="/Sales/CreateInvoice" class="btn btn-primary">إضافة فاتورة جديدة</a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>رقم الفاتورة</th>
+                    <th>العميل</th>
+                    <th>تاريخ الفاتورة</th>
+                    <th>الحالة</th>
+                    <th>المجموع</th>
+                    <th>المدفوع</th>
+                    <th>المتبقي</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var invoice in Model)
+                {
+                    <tr>
+                        <td>@invoice.InvoiceNumber</td>
+                        <td>@invoice.CustomerName</td>
+                        <td>@invoice.InvoiceDate.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <span class="badge @(invoice.InvoiceStatus == "Posted" ? "bg-success" : "bg-warning")">
+                                @invoice.InvoiceStatus
+                            </span>
+                        </td>
+                        <td>@invoice.TotalAmount.ToString("C")</td>
+                        <td>@invoice.PaidAmount.ToString("C")</td>
+                        <td>@invoice.RemainingAmount.ToString("C")</td>
+                        <td>
+                            <a href="/Sales/Invoice/@invoice.SalesInvoiceId" class="btn btn-sm btn-info">عرض</a>
+                            <a href="#" class="btn btn-sm btn-success">طباعة</a>
+                            <a href="#" class="btn btn-sm btn-warning">دفعة</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,100 @@
+@model List<EFA.Application.DTOs.VendorDto>
+
+@{
+    ViewData["Title"] = "إدارة الموردين";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>قائمة الموردين</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("CreateVendor")" class="btn btn-primary">
+                <i class="fas fa-plus"></i> إضافة موردين جديد
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-body">
+            @if (Model?.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>كود الموردين</th>
+                                <th>اسم الموردين</th>
+                                <th>البريد الإلكتروني</th>
+                                <th>الهاتف</th>
+                                <th>الرصيد الكلي</th>
+                                <th>الحد الائتماني</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var vendor in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@vendor.VendorCode</strong>
+                                    </td>
+                                    <td>@vendor.VendorNameAr</td>
+                                    <td>@vendor.Email</td>
+                                    <td>@vendor.PhoneNumber</td>
+                                    <td>
+                                        <span class="badge bg-info">@vendor.TotalBalance.ToString("N2")</span>
+                                    </td>
+                                    <td>@vendor.CreditLimit.ToString("N2")</td>
+                                    <td>
+                                        <a href="@Url.Action("VendorDetails", new { id = vendor.VendorId })" 
+                                           class="btn btn-sm btn-info" title="عرض التفاصيل">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("CreateVendor", new { id = vendor.VendorId })" 
+                                           class="btn btn-sm btn-warning" title="تعديل">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    لا توجد بيانات موردين حالياً
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn {
+        margin: 0 2px;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+</style>

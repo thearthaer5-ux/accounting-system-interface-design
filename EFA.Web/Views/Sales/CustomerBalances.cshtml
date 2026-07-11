@@ -1,0 +1,54 @@
+@model List<EFA.Application.DTOs.CustomerBalanceDto>
+
+@{
+    ViewData["Title"] = "أرصدة العملاء";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h2>أرصدة العملاء المتأخرة</h2>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>العميل</th>
+                    <th>المجموع</th>
+                    <th>المدفوع</th>
+                    <th>الرصيد المتبقي</th>
+                    <th>العملة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var balance in Model)
+                {
+                    <tr class="@(balance.BalanceAmount > 0 ? "table-danger" : "")">
+                        <td>@balance.CustomerName</td>
+                        <td>@balance.TotalAmount.ToString("C")</td>
+                        <td>@balance.PaidAmount.ToString("C")</td>
+                        <td>
+                            <strong>@balance.BalanceAmount.ToString("C")</strong>
+                        </td>
+                        <td>@balance.CurrencyCode</td>
+                        <td>
+                            <a href="/Sales/CustomerBalance/@balance.CustomerId" class="btn btn-sm btn-info">عرض</a>
+                            <a href="#" class="btn btn-sm btn-success">دفعة جديدة</a>
+                            <a href="#" class="btn btn-sm btn-warning">تحديث</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info">
+            لا توجد أرصدة متأخرة للعملاء
+        </div>
+    }
+</div>

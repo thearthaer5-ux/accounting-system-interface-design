@@ -44,6 +44,15 @@ builder.Services.AddScoped<IFiscalPeriodRepository, FiscalPeriodRepository>();
 builder.Services.AddScoped<IAccountBalanceRepository, AccountBalanceRepository>();
 builder.Services.AddScoped<ILedgerReportRepository, LedgerReportRepository>();
 
+// Purchase Repositories
+builder.Services.AddScoped<IVendorRepository, VendorRepository>();
+builder.Services.AddScoped<IQuotationRepository, QuotationRepository>();
+builder.Services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
+builder.Services.AddScoped<IPurchaseInvoiceRepository, PurchaseInvoiceRepository>();
+builder.Services.AddScoped<IPurchaseReturnRepository, PurchaseReturnRepository>();
+builder.Services.AddScoped<IVendorBalanceRepository, VendorBalanceRepository>();
+builder.Services.AddScoped<IPurchasePaymentRepository, PurchasePaymentRepository>();
+
 // Register Services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
@@ -63,6 +72,29 @@ builder.Services.AddScoped<IJournalService, JournalService>();
 builder.Services.AddScoped<IFiscalPeriodService, FiscalPeriodService>();
 builder.Services.AddScoped<IAccountBalanceService, AccountBalanceService>();
 builder.Services.AddScoped<IOpeningBalanceService, OpeningBalanceService>();
+
+// Purchase Services
+builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+builder.Services.AddScoped<IPurchaseInvoiceService, PurchaseInvoiceService>();
+builder.Services.AddScoped<IPurchaseReturnService, PurchaseReturnService>();
+builder.Services.AddScoped<IVendorBalanceService, VendorBalanceService>();
+
+// Sales Repositories
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ISalesOrderRepository, SalesOrderRepository>();
+builder.Services.AddScoped<ISalesInvoiceRepository, SalesInvoiceRepository>();
+builder.Services.AddScoped<ISalesReturnRepository, SalesReturnRepository>();
+builder.Services.AddScoped<ISalesPaymentRepository, SalesPaymentRepository>();
+builder.Services.AddScoped<ICustomerBalanceRepository, CustomerBalanceRepository>();
+builder.Services.AddScoped<ISalesmanRepository, SalesmanRepository>();
+
+// Sales Services
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ISalesOrderService, SalesOrderService>();
+builder.Services.AddScoped<ISalesInvoiceService, SalesInvoiceService>();
+builder.Services.AddScoped<ISalesReturnService, SalesReturnService>();
+builder.Services.AddScoped<ICustomerBalanceService, CustomerBalanceService>();
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
