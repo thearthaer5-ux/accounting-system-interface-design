@@ -80,6 +80,22 @@ builder.Services.AddScoped<IPurchaseInvoiceService, PurchaseInvoiceService>();
 builder.Services.AddScoped<IPurchaseReturnService, PurchaseReturnService>();
 builder.Services.AddScoped<IVendorBalanceService, VendorBalanceService>();
 
+// Sales Repositories
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ISalesOrderRepository, SalesOrderRepository>();
+builder.Services.AddScoped<ISalesInvoiceRepository, SalesInvoiceRepository>();
+builder.Services.AddScoped<ISalesReturnRepository, SalesReturnRepository>();
+builder.Services.AddScoped<ISalesPaymentRepository, SalesPaymentRepository>();
+builder.Services.AddScoped<ICustomerBalanceRepository, CustomerBalanceRepository>();
+builder.Services.AddScoped<ISalesmanRepository, SalesmanRepository>();
+
+// Sales Services
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+builder.Services.AddScoped<ISalesOrderService, SalesOrderService>();
+builder.Services.AddScoped<ISalesInvoiceService, SalesInvoiceService>();
+builder.Services.AddScoped<ISalesReturnService, SalesReturnService>();
+builder.Services.AddScoped<ICustomerBalanceService, CustomerBalanceService>();
+
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
